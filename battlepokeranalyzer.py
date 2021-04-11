@@ -89,6 +89,13 @@ class TwoHandwinRateAnalysis:
         self.outcomes = [] # Array of numbers. 1 means won. 0 means lose. 0.5 means draw.
         self.score = 0.5 # 0 means this hand always loses. 1 means this hand always wins, 0.5 means this hand always ties.
 
+# Class for analyzing the winrate of one unit across all it's 2-card pairings
+class UnitWinRateAnalysis:
+    def __init__(self):
+        self.key = "Marine"
+        self.outcomes = [] # See above
+        self.score = 0.5 # See above
+
 # Analyze one file and add the results to battles
 def analyzeFile(filePath):
     print("Processing replay at " + filePath)
@@ -118,6 +125,8 @@ def analyzeFile(filePath):
                 unit.survived = apiUnit['killing_unit'] is None
                 unit.name = vars(apiUnit['_type_class'])['name']
                 unit.supply = vars(apiUnit['_type_class'])['supply']
+                if (unit.supply == 0):
+                    unit.supply = 1 # Dirty temporary hack to avoid divide by 0 error, some units have 0 sup
                 unit.owner = apiUnit['owner']
                 units.append(unit)
 
@@ -187,6 +196,8 @@ def analyzeFile(filePath):
 
 # Generate dictionary of outcomes by 2 hand battles
 def generateTwoHandMatchupAnalysis(battles):
+    print("Generating two hand matchup analysis")
+
     twoHandMatchupDict = {}
 
     twoHandBattles = getUseableTwoHandBattles()
@@ -214,6 +225,8 @@ def generateTwoHandMatchupAnalysis(battles):
 
 # Generate dictionary of outcomes by 2 hand battles
 def generateTwoHandwinRatesByHandAnalysis(battles):
+    print("Generating two hand winrate analysis")
+
     twoHandWinRateDict = {}
 
     twoHandBattles = getUseableTwoHandBattles()
@@ -221,34 +234,67 @@ def generateTwoHandwinRatesByHandAnalysis(battles):
     print("Iterating two hand battles")
 
     for battle in twoHandBattles:
-        key = battle.hands[0].card1.unitType + "/" + battle.hands[0].card2.unitType
-        if key not in twoHandWinRateDict:
-            handAnalysis = TwoHandwinRateAnalysis()
-            handAnalysis.key = key
-            twoHandWinRateDict[key] = handAnalysis
-        if (battle.hands[0].won and battle.hands[1].won):
-            twoHandWinRateDict[key].outcomes.append(0.5)
-        elif (battle.hands[0].won):
-            twoHandWinRateDict[key].outcomes.append(1)
-        else:
-            twoHandWinRateDict[key].outcomes.append(0)
-        key = battle.hands[1].card1.unitType + "/" + battle.hands[1].card2.unitType
-        if key not in twoHandWinRateDict:
-            handAnalysis = TwoHandwinRateAnalysis()
-            handAnalysis.key = key
-            twoHandWinRateDict[key] = handAnalysis
-        if (battle.hands[0].won and battle.hands[1].won):
-            twoHandWinRateDict[key].outcomes.append(0.5)
-        elif (battle.hands[0].won):
-            twoHandWinRateDict[key].outcomes.append(1)
-        else:
-            twoHandWinRateDict[key].outcomes.append(0)
+        key1 = battle.hands[0].card1.unitType + "/" + battle.hands[0].card2.unitType
+        key2 = battle.hands[1].card1.unitType + "/" + battle.hands[1].card2.unitType
+
+        for key in [ key1, key2 ]:
+            if key not in twoHandWinRateDict:
+                handAnalysis = TwoHandwinRateAnalysis()
+                handAnalysis.key = key
+                twoHandWinRateDict[key] = handAnalysis
+            if (battle.hands[0].won and battle.hands[1].won):
+                twoHandWinRateDict[key].outcomes.append(0.5)
+            elif (battle.hands[0].won):
+                twoHandWinRateDict[key].outcomes.append(1 if key == key1 else 0)
+            else:
+                twoHandWinRateDict[key].outcomes.append(0 if key == key1 else 1)
 
     # Derive a score based on outcomes
     for key in twoHandWinRateDict:
         twoHandWinRateDict[key].score = sum(twoHandWinRateDict[key].outcomes) / len(twoHandWinRateDict[key].outcomes)
 
     return twoHandWinRateDict
+
+# Generate dictionary of outcomes by Unit
+def generateUnitWinRatesAnalysis(battles):
+    print("Generating unit winrate analysis")
+
+    unitWinRateDict = {}
+
+    twoHandBattles = getUseableTwoHandBattles()
+
+    print("Iterating two hand battles")
+
+    for battle in twoHandBattles:
+        keys = []
+        keys.append(battle.hands[0].card1.unitType)
+        keys.append(battle.hands[0].card2.unitType)
+        keys.append(battle.hands[1].card1.unitType)
+        keys.append(battle.hands[1].card2.unitType)
+
+        for key in keys:
+            if key not in unitWinRateDict:
+                handAnalysis = UnitWinRateAnalysis()
+                handAnalysis.key = key
+                unitWinRateDict[key] = handAnalysis
+            if (battle.hands[0].won and battle.hands[1].won):
+                unitWinRateDict[key].outcomes.append(0.5)
+            elif (battle.hands[0].won):
+                if key in {card.unitType for card in [ battle.hands[0].card1, battle.hands[0].card2 ]}:
+                    unitWinRateDict[key].outcomes.append(1)
+                else:
+                    unitWinRateDict[key].outcomes.append(0)
+            else:
+                if key in {card.unitType for card in [ battle.hands[0].card1, battle.hands[0].card2 ]}:
+                    unitWinRateDict[key].outcomes.append(0)
+                else:
+                    unitWinRateDict[key].outcomes.append(1)
+
+    # Derive a score based on outcomes
+    for key in unitWinRateDict:
+        unitWinRateDict[key].score = sum(unitWinRateDict[key].outcomes) / len(unitWinRateDict[key].outcomes)
+
+    return unitWinRateDict
 
 def getUseableTwoHandBattles():
     return [battle for battle in battles if len(battle.hands) == 2 and battle.resolved]
@@ -271,6 +317,9 @@ twoHandMatchupDict = generateTwoHandMatchupAnalysis(battles)
 # Generate dictionary of scores of hands in any 2 hand battle
 twoHandWinRateDict = generateTwoHandwinRatesByHandAnalysis(battles)
 
+# Generate dictionary of scores of individual units in any 2 hand battle
+unitWinRateDict = generateUnitWinRatesAnalysis(battles)
+
 # Save current stdout
 originalStdOut = sys.stdout
 
@@ -283,31 +332,10 @@ with open("output.log", "w") as log_file:
     print(str(len([battle for battle in battles if not battle.resolved])) + " unresolved battles were excluded")
     print(str(len(getUseableTwoHandBattles())) + " useable two hand battles remained")
 
-    # Write two hand win rate analyses to log
-    print("\nHand win rate in two-hand battles\n")
-
-    dictKeys = twoHandWinRateDict.keys()
-    dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandWinRateDict[dictKey].score)
-    for key in dictKeys:
-        print(key)
-        print(str(len(twoHandWinRateDict[key].outcomes)) + " battles found")
-        print(twoHandWinRateDict[key].score)
-
-    # Write two hand matchup analyses to log
-    print("\nHand win rates vs other particular hands in two-hand battles\n")
-
-    dictKeys = twoHandMatchupDict.keys()
-    dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandMatchupDict[dictKey].score)
-    for key in dictKeys:
-        print(key)
-        print(str(len(twoHandMatchupDict[key].outcomes)) + " battles found")
-        print(twoHandMatchupDict[key].score)
-
 # Produce csv files
 with open("TwoHandWinRatesByHand.csv", "w") as csv_file:
     sys.stdout = csv_file
 
-    # Write two hand win rate analyses to csv
     dictKeys = twoHandWinRateDict.keys()
     dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandWinRateDict[dictKey].score)
     print('Hand,Battles,Winrate')
@@ -317,12 +345,20 @@ with open("TwoHandWinRatesByHand.csv", "w") as csv_file:
 with open("TwoHandMatchups.csv", "w") as csv_file:
     sys.stdout = csv_file
 
-    # Write two hand matchup analyses to csv
     dictKeys = twoHandMatchupDict.keys()
     dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandMatchupDict[dictKey].score)
     print('Matchup,Battles,Winrate')
     for key in dictKeys:
         print('{},{},{}'.format(key, len(twoHandMatchupDict[key].outcomes), twoHandMatchupDict[key].score))
 
+with open("WinRatesByIndividualUnit.csv", "w") as csv_file:
+    sys.stdout = csv_file
+
+    dictKeys = unitWinRateDict.keys()
+    dictKeys = sorted(dictKeys, key=lambda dictKey: unitWinRateDict[dictKey].score)
+    print('Unit,Battles,Winrate')
+    for key in dictKeys:
+        print('{},{},{}'.format(key, len(unitWinRateDict[key].outcomes), unitWinRateDict[key].score))
+
 sys.stdout = originalStdOut
-print("Process complete, find results in output.log, TwoHandWinRatesByHand.csv and TwoHandMatchups.csv")
+print("Process complete, find results in log and csv files")
