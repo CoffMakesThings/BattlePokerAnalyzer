@@ -8,6 +8,8 @@ Please hit me up if you can provide some replays
 
 ## Current limitations
 
+This is a work in progress so it's not very useful yet
+
 * Only looks at 1 on 1 battles
 * Doesn't account for card unit amounts
 * Don't have enough replays
