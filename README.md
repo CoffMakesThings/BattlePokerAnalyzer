@@ -4,15 +4,17 @@ Tool for analyzing BattlePoker replays
 
 The aim is to produce stats about the value of BattlePoker hands, and perhaps some visual charts or something
 
-Please hit me up if you can provide some replays
+More data = more accurate results, let me know if you can share some replays ^^
+
+Thank you to BotD for providing a lot already
 
 ## Current limitations
 
-This is a work in progress so it's not very useful yet
+This is a work in progress so this current version has some limitations including:
 
 * Only looks at 1 on 1 battles
 * Doesn't account for card unit amounts
-* Don't have enough replays
+* Doesn't account for upgrades
 
 ## Sample outputs:
 
