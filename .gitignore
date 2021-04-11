@@ -1,0 +1,7 @@
+# exclude everything except directory py
+*
+!.gitignore
+!battlepokeranalyzer.py
+!output.log
+!TwoHandMatchups.csv
+!TwoHandWinRatesByHand.csv
