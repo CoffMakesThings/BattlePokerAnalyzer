@@ -2,6 +2,9 @@
 *
 !.gitignore
 !battlepokeranalyzer.py
+!classes.py
+!configuration.py
+!helperMethods.py
 !output.log
 !TwoHandMatchups.csv
 !TwoHandWinRatesByHand.csv
