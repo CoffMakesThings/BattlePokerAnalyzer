@@ -17,7 +17,7 @@ ignoredUnits = [
 ]
 
 # Analyze this many replays maximum, make small for quick tests
-maxFilesToAnalyze = 999999
+maxFilesToAnalyze = 9999999
 
 # Pull replays from these directories
 replayDirectories = [
@@ -25,6 +25,7 @@ replayDirectories = [
     'Replays/BotD/',
     'Replays/Sunxia/',
     'Replays/Coff/',
+    'Replays/Kira/'
     # 'Replays/Test/'
 ]
 
@@ -35,4 +36,4 @@ processingPath = 'processing/'
 lowestAvatarUnitYCoordinate = 84
 
 # If false, analyzer will use pickled battles from previously loaded replays
-generateNewBattles = True
+generateNewBattles = False

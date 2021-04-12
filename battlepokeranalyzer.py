@@ -9,7 +9,7 @@ import multiprocessing as mp
 from tqdm import tqdm
 # import tensorflow as tf
 import pickle
-import gzip
+import lzma
 
 if __name__ == "__main__":
     battles = []
@@ -40,13 +40,13 @@ if __name__ == "__main__":
         # Pickle and zip battles
         print("Pickling and zipping battles")
 
-        with gzip.open('battles.gz', 'wb') as output:
+        with lzma.open('battles.xz', 'wb') as output:
             pickle.dump(battles, output, pickle.HIGHEST_PROTOCOL)
     else:
         # Unzip and unpickle battles
         print("\nCollecting pickled battles")
 
-        with gzip.open('battles.gz', 'rb') as input:
+        with lzma.open('battles.xz', 'rb') as input:
             battles = pickle.load(input)
 
     # Generate dictionary of scores of particular hand matchups
