@@ -17,14 +17,15 @@ ignoredUnits = [
 ]
 
 # Analyze this many replays maximum, make small for quick tests
-maxFilesToAnalyze = 1
+maxFilesToAnalyze = 999999
 
 # Pull replays from these directories
 replayDirectories = [
-    # 'Replays/AMDG/',
-    # 'Replays/BotD/',
-    # 'Replays/Sunxia/',
+    'Replays/AMDG/',
+    'Replays/BotD/',
+    'Replays/Sunxia/',
     'Replays/Coff/',
+    # 'Replays/Test/'
 ]
 
 # Analyze replays in this relative directory

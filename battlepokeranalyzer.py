@@ -5,70 +5,84 @@ from pprint import pprint
 import configuration
 import helperMethods
 import classes
+import multiprocessing as mp
+from tqdm import tqdm
 
-# Copy sample replays into processing folder
-helperMethods.prepareProcessingDirectory()
+if __name__ == "__main__":
+    # Copy sample replays into processing folder
+    helperMethods.prepareProcessingDirectory()
 
-battles = []
+    # Multithreading pool
+    pool = mp.Pool()
 
-# Iterate through replays to collect all the battles
-counter = 0
-print("Iterating replays")
+    # Iterate through replays to collect all the battles
+    print("\nCollecting battles from replays")
 
-for file in os.listdir(configuration.processingPath):
-    if counter < configuration.maxFilesToAnalyze:
-        battles += helperMethods.analyzeFile(configuration.processingPath + file)
-        counter += 1
-        print(str(counter) + "/" + str(len(os.listdir(configuration.processingPath))) + " replays processed")
+    battles = []
 
-# Generate dictionary of scores of particular hand matchups
-twoHandMatchupDict = helperMethods.generateTwoHandMatchupAnalysis(battles)
+    fileNames = os.listdir(configuration.processingPath)
+    filePaths = sorted({ configuration.processingPath + fileName for fileName in fileNames })
+    filePaths = filePaths[0:configuration.maxFilesToAnalyze] # Chop down to desired amount
 
-# Generate dictionary of scores of hands in any 2 hand battle
-twoHandWinRateDict = helperMethods.generateTwoHandwinRatesByHandAnalysis(battles)
+    replaysProcessed = 0
 
-# Generate dictionary of scores of individual units in any 2 hand battle
-unitWinRateDict = helperMethods.generateUnitWinRatesAnalysis(battles)
+    for result in tqdm(pool.imap_unordered(helperMethods.analyzeFile, filePaths), total=len(filePaths)):
+        battles += result
+        replaysProcessed += 1
 
-# Save current stdout
-originalStdOut = sys.stdout
+    pool.close()
+    pool.join()
 
-# Produce log file
-with open("output.log", "w") as log_file:
-    # Log stats about how much data was used
-    sys.stdout = log_file
-    print(str(len(battles)) + " total battles found")
-    print(str(len([battle for battle in battles if battle.hasWildcard])) + " battles with wildcards were excluded")
-    print(str(len([battle for battle in battles if not battle.resolved])) + " unresolved battles were excluded")
-    print(str(len(helperMethods.getUseableTwoHandBattles(battles))) + " useable two hand battles remained")
+    # Generate dictionary of scores of particular hand matchups
+    twoHandMatchupDict = helperMethods.generateTwoHandMatchupAnalysis(battles)
 
-# Produce csv files
-with open("TwoHandWinRatesByHand.csv", "w") as csv_file:
-    sys.stdout = csv_file
+    # Generate dictionary of scores of hands in any 2 hand battle
+    twoHandWinRateDict = helperMethods.generateTwoHandwinRatesByHandAnalysis(battles)
 
-    dictKeys = twoHandWinRateDict.keys()
-    dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandWinRateDict[dictKey].score)
-    print('Hand,Battles,Winrate')
-    for key in dictKeys:
-        print('{},{},{}'.format(key, len(twoHandWinRateDict[key].outcomes), twoHandWinRateDict[key].score))
+    # Generate dictionary of scores of individual units in any 2 hand battle
+    unitWinRateDict = helperMethods.generateUnitWinRatesAnalysis(battles)
 
-with open("TwoHandMatchups.csv", "w") as csv_file:
-    sys.stdout = csv_file
+    # Save current stdout
+    originalStdOut = sys.stdout
 
-    dictKeys = twoHandMatchupDict.keys()
-    dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandMatchupDict[dictKey].score)
-    print('Matchup,Battles,Winrate')
-    for key in dictKeys:
-        print('{},{},{}'.format(key, len(twoHandMatchupDict[key].outcomes), twoHandMatchupDict[key].score))
+    # Produce log file
+    with open("output.log", "w") as log_file:
+        # Log stats about how much data was used
+        sys.stdout = log_file
+        print("{} replays processed".format(replaysProcessed))
+        print(str(len(battles)) + " total battles found")
+        print(str(len([battle for battle in battles if battle.oneCard])) + " one card battles were excluded")
+        print(str(len([battle for battle in battles if battle.wildcard])) + " battles with a wildcard were excluded")
+        print(str(len([battle for battle in battles if not battle.resolved])) + " unresolved battles were excluded")
+        print(str(len(helperMethods.getUseableTwoHandBattles(battles))) + " useable two card battles remained")
 
-with open("WinRatesByIndividualUnit.csv", "w") as csv_file:
-    sys.stdout = csv_file
+    # Produce csv files
+    with open("TwoHandWinRatesByHand.csv", "w") as csv_file:
+        sys.stdout = csv_file
 
-    dictKeys = unitWinRateDict.keys()
-    dictKeys = sorted(dictKeys, key=lambda dictKey: unitWinRateDict[dictKey].score)
-    print('Unit,Battles,Winrate')
-    for key in dictKeys:
-        print('{},{},{}'.format(key, len(unitWinRateDict[key].outcomes), unitWinRateDict[key].score))
+        dictKeys = twoHandWinRateDict.keys()
+        dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandWinRateDict[dictKey].score)
+        print('Hand,Battles,Winrate')
+        for key in dictKeys:
+            print('{},{},{}'.format(key, len(twoHandWinRateDict[key].outcomes), twoHandWinRateDict[key].score))
 
-sys.stdout = originalStdOut
-print("Process complete, find results in log and csv files")
+    with open("TwoHandMatchups.csv", "w") as csv_file:
+        sys.stdout = csv_file
+
+        dictKeys = twoHandMatchupDict.keys()
+        dictKeys = sorted(dictKeys, key=lambda dictKey: twoHandMatchupDict[dictKey].score)
+        print('Matchup,Battles,Winrate')
+        for key in dictKeys:
+            print('{},{},{}'.format(key, len(twoHandMatchupDict[key].outcomes), twoHandMatchupDict[key].score))
+
+    with open("WinRatesByIndividualUnit.csv", "w") as csv_file:
+        sys.stdout = csv_file
+
+        dictKeys = unitWinRateDict.keys()
+        dictKeys = sorted(dictKeys, key=lambda dictKey: unitWinRateDict[dictKey].score)
+        print('Unit,Battles,Winrate')
+        for key in dictKeys:
+            print('{},{},{}'.format(key, len(unitWinRateDict[key].outcomes), unitWinRateDict[key].score))
+
+    sys.stdout = originalStdOut
+    print("Process complete, find results in log and csv files")

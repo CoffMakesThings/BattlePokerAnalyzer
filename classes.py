@@ -17,7 +17,10 @@ class Battle:
         self.hands = []
         self.startTime = 0
         self.endTime = 0
-        self.hasWildcard = False
+        self.replay = '1.SC2Replay'
+        # Conditions that determine whether the battle is useable, set by default to useable
+        self.wildcard = False
+        self.oneCard = False # If there are untyped units in the battle it will also be classified as a one card battle
         self.resolved = True # Did the battle finish before user quit?
 
 # A card with a certain amount of one unit type
