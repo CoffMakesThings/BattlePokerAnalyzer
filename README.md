@@ -4,9 +4,7 @@ Tool for analyzing BattlePoker replays
 
 The aim is to produce stats about the value of BattlePoker hands, and perhaps some visual charts or something
 
-More data = more accurate results, let me know if you can share some replays ^^
-
-Thank you to BotD and AMDG for providing a lot of replays already
+Thank you to BotD, AMDG and sunxia for providing a lot of replays
 
 ## Current limitations
 
