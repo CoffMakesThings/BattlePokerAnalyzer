@@ -33,3 +33,6 @@ processingPath = 'processing/'
 
 # Units at this y coordinate or more are avatar units
 lowestAvatarUnitYCoordinate = 84
+
+# If false, analyzer will use pickled battles from previously loaded replays
+generateNewBattles = True

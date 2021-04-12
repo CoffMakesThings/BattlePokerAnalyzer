@@ -7,31 +7,47 @@ import helperMethods
 import classes
 import multiprocessing as mp
 from tqdm import tqdm
+# import tensorflow as tf
+import pickle
+import gzip
 
 if __name__ == "__main__":
-    # Copy sample replays into processing folder
-    helperMethods.prepareProcessingDirectory()
-
-    # Multithreading pool
-    pool = mp.Pool()
-
-    # Iterate through replays to collect all the battles
-    print("\nCollecting battles from replays")
-
     battles = []
-
-    fileNames = os.listdir(configuration.processingPath)
-    filePaths = sorted({ configuration.processingPath + fileName for fileName in fileNames })
-    filePaths = filePaths[0:configuration.maxFilesToAnalyze] # Chop down to desired amount
 
     replaysProcessed = 0
 
-    for result in tqdm(pool.imap_unordered(helperMethods.analyzeFile, filePaths), total=len(filePaths)):
-        battles += result
-        replaysProcessed += 1
+    if configuration.generateNewBattles:
+        # Copy sample replays into processing folder
+        helperMethods.prepareProcessingDirectory()
 
-    pool.close()
-    pool.join()
+        # Multithreading pool
+        pool = mp.Pool()
+
+        # Iterate through replays to collect all the battles
+        print("\nGenerating battles from replays")
+
+        fileNames = os.listdir(configuration.processingPath)
+        filePaths = sorted({ configuration.processingPath + fileName for fileName in fileNames })
+        filePaths = filePaths[0:configuration.maxFilesToAnalyze] # Chop down to desired amount
+
+        for result in tqdm(pool.imap_unordered(helperMethods.analyzeFile, filePaths), total=len(filePaths)):
+            battles += result
+            replaysProcessed += 1
+
+        pool.close()
+        pool.join()
+
+        # Pickle and zip battles
+        print("Pickling and zipping battles")
+
+        with gzip.open('battles.gz', 'wb') as output:
+            pickle.dump(battles, output, pickle.HIGHEST_PROTOCOL)
+    else:
+        # Unzip and unpickle battles
+        print("\nCollecting pickled battles")
+
+        with gzip.open('battles.gz', 'rb') as input:
+            battles = pickle.load(input)
 
     # Generate dictionary of scores of particular hand matchups
     twoHandMatchupDict = helperMethods.generateTwoHandMatchupAnalysis(battles)

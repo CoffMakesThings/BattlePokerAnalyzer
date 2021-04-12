@@ -146,6 +146,8 @@ def analyzeFile(filePath):
 
             if not battle.wildcard and not battle.oneCard:
                 # Not a wildcard battle, let's derive cards
+                cards = []
+
                 for unitType in unitTypes:
                     card = classes.Card()
                     card.unitType = unitType
@@ -154,11 +156,11 @@ def analyzeFile(filePath):
                     card.owner = cardUnits[0].owner
                     card.maxAmount = configuration.maxSupply / cardUnits[0].supply
                     card.lastDeathTime = max(unit.diedTime for unit in cardUnits)
-                    battle.cards.append(card)
+                    cards.append(card)
 
                 # Now lets derive hands
-                battle.cards = sorted(battle.cards, key=lambda card: card.unitType)
-                for card in battle.cards:
+                cards = sorted(cards, key=lambda card: card.unitType)
+                for card in cards:
                     if any(card.owner == hand.owner for hand in battle.hands):
                         hand = next(hand for hand in battle.hands if hand.owner == card.owner)
                         hand.card2 = card
@@ -170,6 +172,9 @@ def analyzeFile(filePath):
                         hand.owner = card.owner
                         hand.card1 = card
                         battle.hands.append(hand)
+        
+        # Clear units to reduce size of battles.pkl
+        battle.units = None
 
     return battles
 

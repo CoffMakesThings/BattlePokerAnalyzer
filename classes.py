@@ -13,7 +13,6 @@ class Unit:
 class Battle:
     def __init__(self):
         self.units = []
-        self.cards = []
         self.hands = []
         self.startTime = 0
         self.endTime = 0
