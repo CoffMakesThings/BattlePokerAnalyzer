@@ -7,7 +7,6 @@ class Unit:
         self.survived = False
         self.name = 'marine'
         self.owner = '[Faze]xXx_l337_h4x0r_xXx'
-        self.supply = 1
 
 # A battle over a particular pot
 class Battle:
@@ -26,7 +25,6 @@ class Battle:
 class Card:
     def __init__(self):
         self.unitType = 'marine'
-        self.maxAmount = 50
         self.amount = 0
         self.owner = '[Faze]xXx_l337_h4x0r_xXx'
         self.lastDeathTime = 0
@@ -60,3 +58,14 @@ class UnitWinRateAnalysis:
         self.key = "Marine"
         self.outcomes = [] # See above
         self.score = 0.5 # See above
+
+# Used in the InputLayerConverter to transform a card into an input node
+class InputLayerNode:
+    def __init__(self):
+        self.unitType = "Marine"
+        self.maxAmount = 50
+
+# Pass in cards to this converter and it will produce an input tuple
+class InputLayerConverter:
+    def __init__(self):
+        self.nodes = []

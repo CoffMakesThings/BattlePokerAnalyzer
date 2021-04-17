@@ -4,7 +4,8 @@
 !battlepokeranalyzer.py
 !classes.py
 !configuration.py
-!helperMethods.py
+!replaysProcessor.py
+!neuralNet.py
 !output.log
 !TwoHandMatchups.csv
 !TwoHandWinRatesByHand.csv
