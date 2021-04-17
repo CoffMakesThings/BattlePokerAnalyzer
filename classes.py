@@ -1,3 +1,5 @@
+import configuration
+
 # Class with all the info we need to know about each individual unit
 class Unit:
     def __init__(self):
@@ -61,11 +63,55 @@ class UnitWinRateAnalysis:
 
 # Used in the InputLayerConverter to transform a card into an input node
 class InputLayerNode:
-    def __init__(self):
-        self.unitType = "Marine"
-        self.maxAmount = 50
+    def __init__(self, unitType):
+        self.unitType = unitType
+        self.maxAmount = configuration.maxAmountByUnitType[unitType]
+
+    def getValue(self, amount):
+        if (amount / self.maxAmount) > 1:
+            print('unit type {} amount {} maxAmount {}'.format(self.unitType, amount, self.maxAmount))
+        return amount / self.maxAmount
 
 # Pass in cards to this converter and it will produce an input tuple
 class InputLayerConverter:
-    def __init__(self):
+    def __init__(self, unitTypes):
         self.nodes = []
+        
+        for unitType in unitTypes:
+            self.nodes.append(InputLayerNode(unitType))
+
+    def convertBattleIntoTuples(self, battle, mirror = False):
+        exampleTuple = []
+        labelTuple = []
+
+        # Friendly nodes (Input)
+        for node in self.nodes:
+            if battle.hands[0].card1.unitType == node.unitType:
+                exampleTuple.append(node.getValue(battle.hands[0].card1.amount))
+            elif battle.hands[0].card2.unitType == node.unitType:
+                exampleTuple.append(node.getValue(battle.hands[0].card2.amount))
+            else:
+                exampleTuple.append(0)
+        
+        # Enemy nodes (Input)
+        for node in self.nodes:
+            if battle.hands[1].card1.unitType == node.unitType:
+                exampleTuple.append(node.getValue(battle.hands[0].card1.amount))
+            elif battle.hands[1].card2.unitType == node.unitType:
+                exampleTuple.append(node.getValue(battle.hands[0].card2.amount))
+            else:
+                exampleTuple.append(0)
+        
+        # Label (Output)
+        if (battle.hands[0].won and not battle.hands[1].won):
+            labelTuple.append(1)
+            labelTuple.append(0)
+        elif battle.hands[1].won:
+            labelTuple.append(0)
+            labelTuple.append(0)
+        else:
+            labelTuple.append(0)
+            labelTuple.append(1)
+        
+        return exampleTuple, labelTuple
+

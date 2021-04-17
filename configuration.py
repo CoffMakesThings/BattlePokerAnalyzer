@@ -44,7 +44,7 @@ maxAmountByUnitType = {
     'Adept': 25,
     'Archon': 12,
     'Baneling': 100,
-    'Banshee': 25,
+    'Banshee': 17,
     'BattleHellion': 25,
     'Battlecruiser': 8,
     'BroodLord': 12,

@@ -1,4 +1,5 @@
 import tensorflow as tf
+import classes
 
 def convertBattlesIntoTrainingData(battles):
     unitTypes = []
@@ -6,14 +7,21 @@ def convertBattlesIntoTrainingData(battles):
     for battle in battles:
         for hand in battle.hands:
             if hand.card1.unitType not in unitTypes:
-                if hand.card1.maxAmount == 50:
-                    print(hand.card1.unitType)
                 unitTypes.append(hand.card1.unitType)
             if hand.card2.unitType not in unitTypes:
-                if hand.card2.maxAmount == 50:
-                    print(hand.card2.unitType)
                 unitTypes.append(hand.card2.unitType)
     
     unitTypes = sorted(unitTypes)
 
-    print(unitTypes)
+    inputLayerConverter = classes.InputLayerConverter(unitTypes)
+
+    exampleTuples = []
+    labelTuples = []
+
+    for battle in battles:
+        exampleTuple, labelTuple = inputLayerConverter.convertBattleIntoTuples(battle)
+        exampleTuples.append(exampleTuple)
+        labelTuples.append(labelTuple)
+
+    # print(exampleTuples)
+    # print(labelTuples)
