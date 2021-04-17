@@ -68,7 +68,7 @@ if __name__ == "__main__":
     unitWinRateDict = replaysProcessor.generateUnitWinRatesAnalysis(battles)
 
     # Produce neural net
-    neuralNet.convertBattlesIntoTrainingData(replaysProcessor.getUseableTwoHandBattles(battles))
+    neuralNet.getModelFromBattles(replaysProcessor.getUseableTwoHandBattles(battles))
 
     # Save current stdout
     originalStdOut = sys.stdout

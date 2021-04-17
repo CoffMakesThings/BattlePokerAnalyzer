@@ -26,8 +26,8 @@ Banshee/Lurker,4,0.0
 HighTemplar/WidowMine,1,0.0
 Baneling/SiegeTankSieged,6,0.0
 Hydralisk/LurkerBurrowed,4,0.0
-Archon/WidowMineBurrowed,7,0.0
 Adept/WidowMineBurrowed,5,0.0
+Archon/WidowMineBurrowed,7,0.0
 SiegeTankSieged/SwarmHostBurrowed,2,0.0
 Colossus/SiegeTankSieged,8,0.0
 LurkerBurrowed/Oracle,2,0.0
@@ -74,12 +74,12 @@ SCV/ThorAP,1,0.0
 HighTemplar/Overlord,2,0.0
 Marine/SCV,1,0.0
 Battlecruiser/SCV,1,0.0
+Liberator/Probe,1,0.0
 SCV/Thor,1,0.0
 Raven/SCV,1,0.0
 Drone/SCV,1,0.0
 Hellion/Thor,2,0.0
 Adept/SCV,1,0.0
-Liberator/Probe,1,0.0
 Oracle/SCV,1,0.0
 DarkTemplar/SCV,1,0.0
 Overlord/Queen,1,0.0
@@ -167,8 +167,8 @@ Hydralisk/VikingAssault,16,0.15625
 Immortal/Marauder,19,0.15789473684210525
 SwarmHostBurrowed/Viking,9,0.16666666666666666
 Thor/Zergling,6,0.16666666666666666
-Banshee/LurkerBurrowed,9,0.16666666666666666
 Colossus/Hydralisk,12,0.16666666666666666
+Banshee/LurkerBurrowed,9,0.16666666666666666
 Lurker/Queen,6,0.16666666666666666
 Battlecruiser/LiberatorAG,6,0.16666666666666666
 LiberatorAG/Zealot,3,0.16666666666666666
@@ -335,8 +335,8 @@ Hellion/VoidRay,22,0.3181818181818182
 LurkerBurrowed/Mutalisk,11,0.3181818181818182
 Marine/Mothership,11,0.3181818181818182
 Banshee/Colossus,22,0.3181818181818182
-Hydralisk/Marine,22,0.3181818181818182
 Hydralisk/Immortal,22,0.3181818181818182
+Hydralisk/Marine,22,0.3181818181818182
 Queen/Roach,22,0.3181818181818182
 Marauder/ThorAP,14,0.32142857142857145
 Medivac/Ultralisk,14,0.32142857142857145
@@ -392,8 +392,8 @@ Lurker/Oracle,10,0.35
 Colossus/Marine,20,0.35
 Mothership/SwarmHostBurrowed,10,0.35
 HighTemplar/Mothership,10,0.35
-Banshee/Zergling,17,0.35294117647058826
 Corruptor/Roach,17,0.35294117647058826
+Banshee/Zergling,17,0.35294117647058826
 Adept/BattleHellion,17,0.35294117647058826
 Baneling/Colossus,24,0.3541666666666667
 Mutalisk/Zealot,24,0.3541666666666667
@@ -657,9 +657,9 @@ Lurker/Marine,9,0.5
 Stalker/SwarmHostBurrowed,15,0.5
 Adept/Mothership,10,0.5
 Queen/Reaper,30,0.5
-HighTemplar/Zealot,9,0.5
 Oracle/Zealot,18,0.5
 Marine/Medivac,9,0.5
+HighTemplar/Zealot,9,0.5
 Colossus/Mothership,11,0.5
 Liberator/Marauder,16,0.5
 Marine/Mutalisk,18,0.5
@@ -714,8 +714,8 @@ Carrier/SCV,1,0.5
 Phoenix/Probe,1,0.5
 Probe/VoidRay,2,0.5
 Infestor/Overlord,1,0.5
-Drone/Marine,2,0.5
 Marauder/Overlord,2,0.5
+Drone/Marine,2,0.5
 Archon/Medivac,2,0.5
 LiberatorAG/Overlord,1,0.5
 Overlord/Zergling,1,0.5
@@ -1048,8 +1048,8 @@ Ghost/VoidRay,28,0.6964285714285714
 Baneling/Tempest,33,0.696969696969697
 Raven/Stalker,43,0.6976744186046512
 Battlecruiser/Queen,43,0.6976744186046512
-Carrier/HighTemplar,35,0.7
 Phoenix/Tempest,35,0.7
+Carrier/HighTemplar,35,0.7
 Liberator/Ravager,15,0.7
 Ghost/SiegeTank,5,0.7
 Queen/VoidRay,30,0.7

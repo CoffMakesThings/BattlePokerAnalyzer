@@ -1,4 +1,5 @@
 import configuration
+import torch
 
 # Class with all the info we need to know about each individual unit
 class Unit:
@@ -67,9 +68,9 @@ class InputLayerNode:
         self.unitType = unitType
         self.maxAmount = configuration.maxAmountByUnitType[unitType]
 
-    def getValue(self, amount):
+    def getValue(self, amount, replay):
         if (amount / self.maxAmount) > 1:
-            print('unit type {} amount {} maxAmount {}'.format(self.unitType, amount, self.maxAmount))
+            print('unit type {} amount {} maxAmount {} replay {}'.format(self.unitType, amount, self.maxAmount, replay))
         return amount / self.maxAmount
 
 # Pass in cards to this converter and it will produce an input tuple
@@ -87,18 +88,18 @@ class InputLayerConverter:
         # Friendly nodes (Input)
         for node in self.nodes:
             if battle.hands[0].card1.unitType == node.unitType:
-                exampleTuple.append(node.getValue(battle.hands[0].card1.amount))
+                exampleTuple.append(node.getValue(battle.hands[0].card1.amount, battle.replay))
             elif battle.hands[0].card2.unitType == node.unitType:
-                exampleTuple.append(node.getValue(battle.hands[0].card2.amount))
+                exampleTuple.append(node.getValue(battle.hands[0].card2.amount, battle.replay))
             else:
                 exampleTuple.append(0)
         
         # Enemy nodes (Input)
         for node in self.nodes:
             if battle.hands[1].card1.unitType == node.unitType:
-                exampleTuple.append(node.getValue(battle.hands[0].card1.amount))
+                exampleTuple.append(node.getValue(battle.hands[1].card1.amount, battle.replay))
             elif battle.hands[1].card2.unitType == node.unitType:
-                exampleTuple.append(node.getValue(battle.hands[0].card2.amount))
+                exampleTuple.append(node.getValue(battle.hands[1].card2.amount, battle.replay))
             else:
                 exampleTuple.append(0)
         
