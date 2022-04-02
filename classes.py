@@ -62,6 +62,13 @@ class UnitWinRateAnalysis:
         self.outcomes = [] # See above
         self.score = 0.5 # See above
 
+# Class for analyzing the winrate of one unit across all it's 2-card pairings
+class UnitMatchupAnalysis:
+    def __init__(self):
+        self.key = ["Marine vs Thor"]
+        self.outcomes = [] # See above
+        self.score = 0.5 # See above
+
 # Used in the InputLayerConverter to transform a card into an input node
 class InputLayerNode:
     def __init__(self, unitType):

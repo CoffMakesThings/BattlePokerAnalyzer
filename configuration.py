@@ -24,6 +24,7 @@ replayDirectories = [
     'Replays/Coff/',
     'Replays/Kira/'
     # 'Replays/Test/'
+    # 'Replays/New/'
 ]
 
 # Analyze replays in this relative directory

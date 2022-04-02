@@ -1,4 +1,5 @@
 import os
+from typing import Dict, List
 import configuration
 import shutil
 import sc2reader
@@ -174,7 +175,10 @@ def analyzeFile(filePath):
 
     return battles
 
-# Generate dictionary of outcomes by 2 hand battles
+# Generate winrates between pairs of two unit combinations
+# Example
+# Matchup,Battles,Winrate
+# Hellion/Colossus vs Corruptor/Ultralisk,10,0.0
 def generateTwoHandMatchupAnalysis(battles):
     print("Generating two hand matchup analysis")
 
@@ -185,8 +189,6 @@ def generateTwoHandMatchupAnalysis(battles):
     print("Iterating two hand battles")
 
     for battle in twoHandBattles:
-        if battle.hands[0].card1 is None or battle.hands[0].card2 is None or battle.hands[1].card1 is None or battle.hands[1].card2 is None:
-            printBattles([battle])
         key = battle.hands[0].card1.unitType + "/" + battle.hands[0].card2.unitType + " vs " + battle.hands[1].card1.unitType + "/" + battle.hands[1].card2.unitType
         if key not in twoHandMatchupDict:
             handAnalysis = classes.TwoHandMatchupAnalysis()
@@ -205,8 +207,11 @@ def generateTwoHandMatchupAnalysis(battles):
 
     return twoHandMatchupDict
 
-# Generate dictionary of outcomes by 2 hand battles
-def generateTwoHandwinRatesByHandAnalysis(battles):
+# Generate winrates of two unit combinations against anything
+# Example
+# Hand,Battles,Winrate
+# Lurker/WidowMine,4,0.0
+def generateTwoHandWinRatesByHandAnalysis(battles):
     print("Generating two hand winrate analysis")
 
     twoHandWinRateDict = {}
@@ -237,7 +242,10 @@ def generateTwoHandwinRatesByHandAnalysis(battles):
 
     return twoHandWinRateDict
 
-# Generate dictionary of outcomes by Unit
+# Generate winrates of individual units in any combination against any combination
+# Example
+# Unit,Battles,Winrate
+# SwarmHost,10,0.0
 def generateUnitWinRatesAnalysis(battles):
     print("Generating unit winrate analysis")
 
@@ -278,7 +286,45 @@ def generateUnitWinRatesAnalysis(battles):
 
     return unitWinRateDict
 
-def getUseableTwoHandBattles(battles):
+# Generate winrates of individual unit in any combination vs another individual unit in any combination
+# Example
+# Matchup,Battles,Winrate
+# Colossus vs Ultralisk,10,0.0
+def generateUnitMatchupAnalysis(battles) -> Dict:
+    print("Generating unit winrate analysis")
+
+    unitMatchupDict: Dict = {}
+
+    twoHandBattles: List = getUseableTwoHandBattles(battles)
+
+    print("Iterating two hand battles")
+
+    for battle in twoHandBattles:
+        keys: List = []
+        keys.append(battle.hands[0].card1.unitType + " vs " + battle.hands[1].card1.unitType);
+        keys.append(battle.hands[0].card1.unitType + " vs " + battle.hands[1].card2.unitType);
+        keys.append(battle.hands[1].card1.unitType + " vs " + battle.hands[1].card1.unitType);
+        keys.append(battle.hands[1].card1.unitType + " vs " + battle.hands[1].card2.unitType);
+
+        for key in keys:
+            if key not in unitMatchupDict:
+                handAnalysis = classes.UnitWinRateAnalysis()
+                handAnalysis.key = key
+                unitMatchupDict[key] = handAnalysis
+            if (battle.hands[0].won and battle.hands[1].won):
+                unitMatchupDict[key].outcomes.append(0.5)
+            elif (battle.hands[0].won):
+                unitMatchupDict[key].outcomes.append(1)
+            else:
+                unitMatchupDict[key].outcomes.append(0)
+
+    # Derive a score based on outcomes
+    for key in unitMatchupDict:
+        unitMatchupDict[key].score = sum(unitMatchupDict[key].outcomes) / len(unitMatchupDict[key].outcomes)
+
+    return unitMatchupDict
+
+def getUseableTwoHandBattles(battles) -> List:
     # Return all battles that meet the following conditions:
     # - Includes only two players
     # - Battle finished before game ended

@@ -5,7 +5,6 @@ from pprint import pprint
 import configuration
 import replaysProcessor
 import classes
-import neuralNet
 import multiprocessing as mp
 from tqdm import tqdm
 import pickle
@@ -58,17 +57,11 @@ if __name__ == "__main__":
             with open('battles.pkl', 'wb') as output:
                 pickle.dump(battles, output, pickle.HIGHEST_PROTOCOL)
 
-    # Generate dictionary of scores of particular hand matchups
+    # Process analyses - See method comments for explanations
     twoHandMatchupDict = replaysProcessor.generateTwoHandMatchupAnalysis(battles)
-
-    # Generate dictionary of scores of hands in any 2 hand battle
-    twoHandWinRateDict = replaysProcessor.generateTwoHandwinRatesByHandAnalysis(battles)
-
-    # Generate dictionary of scores of individual units in any 2 hand battle
+    twoHandWinRateDict = replaysProcessor.generateTwoHandWinRatesByHandAnalysis(battles)
     unitWinRateDict = replaysProcessor.generateUnitWinRatesAnalysis(battles)
-
-    # Produce neural net
-    neuralNet.getModelFromBattles(replaysProcessor.getUseableTwoHandBattles(battles))
+    unitMatchupDict = replaysProcessor.generateUnitMatchupAnalysis(battles)
 
     # Save current stdout
     originalStdOut = sys.stdout
@@ -103,7 +96,7 @@ if __name__ == "__main__":
         for key in dictKeys:
             print('{},{},{}'.format(key, len(twoHandMatchupDict[key].outcomes), twoHandMatchupDict[key].score))
 
-    with open("WinRatesByIndividualUnit.csv", "w") as csv_file:
+    with open("IndividualUnitWinRates.csv", "w") as csv_file:
         sys.stdout = csv_file
 
         dictKeys = unitWinRateDict.keys()
@@ -111,6 +104,50 @@ if __name__ == "__main__":
         print('Unit,Battles,Winrate')
         for key in dictKeys:
             print('{},{},{}'.format(key, len(unitWinRateDict[key].outcomes), unitWinRateDict[key].score))
+
+    with open("IndividualUnitMatchups.csv", "w") as csv_file:
+        sys.stdout = csv_file
+
+        dictKeys = unitMatchupDict.keys()
+        dictKeys = sorted(dictKeys, key=lambda dictKey: unitMatchupDict[dictKey].score)
+        print('Unit,Battles,Winrate')
+        for key in dictKeys:
+            print('{},{},{}'.format(key, len(unitMatchupDict[key].outcomes), unitMatchupDict[key].score))
+
+    with open("IndividualUnitMatchupsTabular.csv", "w") as csv_file:
+        sys.stdout = csv_file
+
+        dictKeys = unitMatchupDict.keys()
+        dictKeys = sorted(dictKeys, key=lambda dictKey: unitMatchupDict[dictKey].score)
+
+        unitKeys = [];
+
+        for key in dictKeys:
+            if (key.split(" vs ")[0] not in unitKeys):
+                unitKeys.append(key.split(" vs ")[0]);
+            if (key.split(" vs ")[1] not in unitKeys):
+                unitKeys.append(key.split(" vs ")[1]);
+        
+        unitKeys = sorted(unitKeys)
+
+        print("unit," + ",".join(unitKeys));
+        for key in unitKeys:
+            scores = [];
+
+            for opponentKey in unitKeys:
+                if key == opponentKey:
+                    scores.append("{}".format(0.5));
+                else:
+                    # Find the matching dictionary key of the fight (eg. Archon vs Zergling)
+                    matchingDictKeys = [x for x in dictKeys if key in x and opponentKey in x];
+                    if len(matchingDictKeys) == 0:
+                        scores.append("{}".format(""));
+                    elif matchingDictKeys[0].index(key) == 0:
+                        scores.append("{}".format(unitMatchupDict[matchingDictKeys[0]].score));
+                    else:
+                        scores.append("{}".format(1 - unitMatchupDict[matchingDictKeys[0]].score));
+
+            print(key + "," + ",".join(scores));
 
     sys.stdout = originalStdOut
     print("Process complete, find results in log and csv files")
